@@ -1,13 +1,33 @@
-export default function TableList({ handleOpen }) {
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
-    const items = [
-        { id: 1, name: "Test Item", date_purchased: "No Date", location: "Not Given", price: 1.00 },
-        { id: 2, name: "Test Item2", date_purchased: "No Date", location: "Not Given", price: 4.57},
-        { id: 3, name: "Test Item3", date_purchased: "No Date", location: "Not Given", price: 6.56 },
-    ]
+export default function TableList({ handleOpen , searchTerm}) {
+    const [ tableData, setTableData ] = useState([])
+    const [ error, setError ] = useState(null);
+
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/api/items')
+            setTableData(response.data);
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
+fetchData();
+
+}, []);
+
+const filterData = tableData.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.location.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
     return (
         <>
+            {error && <div className='alert alert-error'>{error}</div>}
+
             <div className="overflow-x-auto mt-10">
                 <table className="table">
                     {/* head */}
@@ -23,13 +43,13 @@ export default function TableList({ handleOpen }) {
                     <tbody className="hover">
                         {/* row 1 */}
 
-                        {items.map((item) => (
+                        {filterData.map((item) => (
                             <tr key={item.id}>
                                 <th>{item.id}</th>
                                 <td>{item.name}</td>
-                                <td>{item.date_purchased}</td>
+                                <td>{item.date}</td>
                                 <td>{item.location}</td>
-                                <td>{item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD'})}</td>
+                                <td>${item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD'})}</td>
                                 <td>
                                     <button onClick={() => handleOpen('edit')} className="btn btn-secondary">Update</button>
                                 </td>

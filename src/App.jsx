@@ -1,23 +1,32 @@
 
 import './App.css'
+import { useState } from 'react'
+import axios from 'axios'
 import NavBar from './components/NavBar'
 import TableList from './components/TableList'
 import ModalForm from './components/ModalForm'
-import { useState } from 'react'
 
 function App() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add');
 
+  const [ searchTerm, setSearchTerm ] = useState('');
+  const [ itemData, setItemData ] = useState(null);
+
   const handleOpen = (mode) => {
     setIsOpen(true);
     setModalMode(mode);
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async (newItemData) => {
     if (modalMode === 'add') {
-      console.log('modal mode Add');
+      try {
+        const response = await axios.post('http://localhost:3000/api/items', newItemData)
+        console.log('Item added:', response.data);
+      } catch (err) {
+        console.error('Error adding item:', error);
+      }
     } else {
       console.log('modal mode Edit');
     }
@@ -25,10 +34,10 @@ function App() {
 
   return (
     <>
-      <NavBar onOpen={()=>handleOpen('add')} />
-      <TableList handleOpen={handleOpen}/>
+      <NavBar onOpen={()=>handleOpen('add')} onSearch={setSearchTerm} />
+      <TableList handleOpen={handleOpen} searchTerm={searchTerm}/>
       <ModalForm isOpen={isOpen} OnSubmit={handleSubmit} onClose={() => setIsOpen(false)}
-        mode={modalMode}
+        mode={modalMode} itemData={itemData}
       />
       
     </>

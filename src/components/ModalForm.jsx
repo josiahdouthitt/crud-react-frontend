@@ -1,14 +1,20 @@
 import { useState } from "react"
 
-export default function ModalForm({ isOpen, onClose, mode, onSubmit }) {
+export default function ModalForm({ isOpen, onClose, mode, OnSubmit, itemData }) {
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [location, setLocation] = useState('');
     const [price, setPrice] = useState('');
     
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-    onClose(e);
+    try {
+        const itemData = {name, date, location, price}
+        await OnSubmit(itemData);
+    } catch (err) {
+        console.error("Error adding item", err);
+    }
+    onClose();
 }
 
     return (
